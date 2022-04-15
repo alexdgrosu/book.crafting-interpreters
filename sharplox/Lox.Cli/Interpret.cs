@@ -38,7 +38,7 @@ public static class Interpret
     }
   }
 
-  public static void Error(int line, string message)
+  public static void Error(long line, string message)
   {
     Report(line, where: string.Empty, message);
   }
@@ -58,7 +58,7 @@ public static class Interpret
   //  Ideally, we would have an actual abstraction, some kind of
   //  “ErrorReporter” interface that gets passed to the scanner and parser so
   //  that we can swap out different reporting strategies.
-  private static void Report(int line, string where, string message)
+  private static void Report(long line, string where, string message)
   {
     Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
 
