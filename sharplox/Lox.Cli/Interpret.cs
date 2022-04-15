@@ -4,6 +4,8 @@ namespace Lox.Cli;
 
 public static class Interpret
 {
+  private static bool _hadError;
+
   public static async Task FromFile(string path, CancellationTokenSource cancellationTokenSource)
   {
     if (string.IsNullOrEmpty(path))
@@ -12,6 +14,11 @@ public static class Interpret
     }
 
     Run(await File.ReadAllTextAsync(path, cancellationTokenSource.Token));
+
+    if (_hadError)
+    {
+      Environment.Exit(SysExits.EX_DATAERR);
+    }
   }
 
   public static void FromPrompt(CancellationTokenSource cancellationTokenSource)
@@ -22,10 +29,18 @@ public static class Interpret
       string? line = Console.ReadLine();
 
       if (string.IsNullOrEmpty(line))
+      {
         break;
+      }
 
       Run(line);
+      _hadError = false;
     }
+  }
+
+  public static void Error(int line, string message)
+  {
+    Report(line, where: string.Empty, message);
   }
 
   private static void Run(string source)
@@ -37,5 +52,16 @@ public static class Interpret
     {
       Console.WriteLine(token);
     }
+  }
+
+  // TODO §4.1.1:
+  //  Ideally, we would have an actual abstraction, some kind of
+  //  “ErrorReporter” interface that gets passed to the scanner and parser so
+  //  that we can swap out different reporting strategies.
+  private static void Report(int line, string where, string message)
+  {
+    Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
+
+    _hadError = true;
   }
 }
