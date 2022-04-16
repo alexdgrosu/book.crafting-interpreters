@@ -27,11 +27,11 @@ public class Scanner
 
     _tokens.Add(new(EOF, string.Empty, default, _line));
     return _tokens;
+  }
 
-    bool IsAtEnd()
-    {
-      return _current >= _source.Length;
-    }
+  private bool IsAtEnd()
+  {
+    return _current >= _source.Length;
   }
 
   private void ScanToken()
@@ -50,9 +50,22 @@ public class Scanner
       case '+': AddToken(PLUS); break;
       case ';': AddToken(SEMICOLON); break;
       case '*': AddToken(STAR); break;
+      case '!':
+        AddToken(Match('=') ? BANG_EQUAL : BANG);
+        break;
+      case '=':
+        AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
+        break;
+      case '<':
+        AddToken(Match('=') ? LESS_EQUAL : LESS);
+        break;
+      case '>':
+        AddToken(Match('=') ? GREATER_EQUAL : GRATER);
+        break;
 
       default:
-        _reporter.Error(_line, $"Unexpected character '{character}'."); break;
+        _reporter.Error(_line, $"Unexpected character '{character}'.");
+        break;
     }
 
     char Advance()
@@ -63,6 +76,22 @@ public class Scanner
     void AddToken(TokenType type)
     {
       this.AddToken(type, default);
+    }
+
+    bool Match(char expected)
+    {
+      if (IsAtEnd())
+      {
+        return false;
+      }
+
+      if (_source[_current] != expected)
+      {
+        return false;
+      }
+
+      _current++;
+      return true;
     }
   }
 
