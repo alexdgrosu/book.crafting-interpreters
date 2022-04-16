@@ -4,7 +4,7 @@ namespace Lox.Cli;
 
 public static class Interpret
 {
-  private static bool _hadError;
+  private static readonly IReporter _reporter = new ConsoleReporter();
 
   public static async Task FromFile(string path, CancellationTokenSource cancellationTokenSource)
   {
@@ -15,7 +15,7 @@ public static class Interpret
 
     Run(await File.ReadAllTextAsync(path, cancellationTokenSource.Token));
 
-    if (_hadError)
+    if (_reporter.HadError)
     {
       Environment.Exit(SysExits.EX_DATAERR);
     }
@@ -34,34 +34,18 @@ public static class Interpret
       }
 
       Run(line);
-      _hadError = false;
+      _reporter.HadError = false;
     }
-  }
-
-  public static void Error(long line, string message)
-  {
-    Report(line, where: string.Empty, message);
   }
 
   private static void Run(string source)
   {
-    Scanner scanner = new(source);
+    Scanner scanner = new(source, _reporter);
     var tokens = scanner.ScanTokens();
 
     foreach (Token token in tokens)
     {
       Console.WriteLine(token);
     }
-  }
-
-  // TODO §4.1.1:
-  //  Ideally, we would have an actual abstraction, some kind of
-  //  “ErrorReporter” interface that gets passed to the scanner and parser so
-  //  that we can swap out different reporting strategies.
-  private static void Report(long line, string where, string message)
-  {
-    Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
-
-    _hadError = true;
   }
 }

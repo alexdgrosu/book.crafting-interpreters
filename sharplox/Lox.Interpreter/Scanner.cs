@@ -5,14 +5,16 @@ namespace Lox.Interpreter;
 public class Scanner
 {
   private readonly string _source;
+  private readonly IReporter _reporter;
   private readonly ICollection<Token> _tokens = new List<Token>();
   private int _start = 0;
   private int _current = 0;
   private long _line = 1;
 
-  public Scanner(string source)
+  public Scanner(string source, IReporter reporter)
   {
     _source = source;
+    _reporter = reporter;
   }
 
   public ICollection<Token> ScanTokens()
@@ -35,6 +37,7 @@ public class Scanner
   private void ScanToken()
   {
     char character = Advance();
+
     switch (character)
     {
       case '(': AddToken(LEFT_PAREN); break;
@@ -47,6 +50,9 @@ public class Scanner
       case '+': AddToken(PLUS); break;
       case ';': AddToken(SEMICOLON); break;
       case '*': AddToken(STAR); break;
+
+      default:
+        _reporter.Error(_line, $"Unexpected character '{character}'."); break;
     }
 
     char Advance()
