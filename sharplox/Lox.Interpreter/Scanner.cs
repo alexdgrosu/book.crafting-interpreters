@@ -50,6 +50,7 @@ public class Scanner
       case '+': AddToken(PLUS); break;
       case ';': AddToken(SEMICOLON); break;
       case '*': AddToken(STAR); break;
+
       case '!':
         AddToken(Match('=') ? BANG_EQUAL : BANG);
         break;
@@ -62,6 +63,23 @@ public class Scanner
       case '>':
         AddToken(Match('=') ? GREATER_EQUAL : GRATER);
         break;
+      case '/':
+        if (Match('/'))
+          while (Peek() != '\n' && !IsAtEnd())
+            Advance();
+        else
+          AddToken(SLASH);
+        break;
+
+      case ' ':
+      case '\r':
+      case '\t':
+        // Ignore whitespace
+        break;
+
+      case '\n':
+        _line++;
+        break;
 
       default:
         _reporter.Error(_line, $"Unexpected character '{character}'.");
@@ -71,6 +89,16 @@ public class Scanner
     char Advance()
     {
       return _source[_current++];
+    }
+
+    char Peek()
+    {
+      if (IsAtEnd())
+      {
+        return '\0';
+      }
+
+      return _source[_current];
     }
 
     void AddToken(TokenType type)
