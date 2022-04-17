@@ -81,6 +81,10 @@ public class Scanner
         _line++;
         break;
 
+      case '"':
+        String();
+        break;
+
       default:
         _reporter.Error(_line, $"Unexpected character '{character}'.");
         break;
@@ -101,6 +105,7 @@ public class Scanner
       return _source[_current];
     }
 
+    // TODO §4.6.1: Maybe extract this?
     void AddToken(TokenType type)
     {
       this.AddToken(type, default);
@@ -120,6 +125,34 @@ public class Scanner
 
       _current++;
       return true;
+    }
+
+    void String()
+    {
+      while (Peek() != '"' && !IsAtEnd())
+      {
+        if (Peek() == '\n')
+        {
+          _line++;
+        }
+
+        Advance();
+      }
+
+      if (IsAtEnd())
+      {
+        _reporter.Error(_line, "Unterminated string.");
+        return;
+      }
+
+      // Skip past the closing ".
+      Advance();
+
+      // Trim surrounding quotes
+      // TODO §4.6.1: Implement .Substring (start, end) overload
+      int length = _current - _start;
+      string value = _source.Substring(_start + 1, length - 2);
+      this.AddToken(STRING, value);
     }
   }
 
