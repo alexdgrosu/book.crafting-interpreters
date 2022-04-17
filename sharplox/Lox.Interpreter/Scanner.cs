@@ -86,7 +86,12 @@ public class Scanner
         break;
 
       default:
-        _reporter.Error(_line, $"Unexpected character '{character}'.");
+        // §4.6.2:  It’s kind of tedious to add cases for every decimal digit,
+        //          so we’ll stuff it in the default case instead.
+        if (IsDigit(character))
+          Number();
+        else
+          _reporter.Error(_line, $"Unexpected character '{character}'.");
         break;
     }
 
@@ -153,6 +158,45 @@ public class Scanner
       int length = _current - _start;
       string value = _source.Substring(_start + 1, length - 2);
       this.AddToken(STRING, value);
+    }
+
+    bool IsDigit(char c)
+    {
+      return c >= '0' && c <= '9';
+    }
+
+    void Number()
+    {
+      while (IsDigit(Peek()))
+      {
+        Advance();
+      }
+
+      // Look for fractional part.
+      if (Peek() == '.' && IsDigit(PeekNext()))
+      {
+        // Consume the .
+        Advance();
+
+        while (IsDigit(Peek()))
+        {
+          Advance();
+        }
+      }
+
+      int length = _current - _start;
+      string number = _source.Substring(_start, length);
+      this.AddToken(NUMBER, double.Parse(number));
+    }
+
+    char PeekNext()
+    {
+      if (_current + 1 >= _source.Length)
+      {
+        return '\0';
+      }
+
+      return _source[_current + 1];
     }
   }
 
