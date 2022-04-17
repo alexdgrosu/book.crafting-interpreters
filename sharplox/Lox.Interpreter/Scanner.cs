@@ -1,9 +1,30 @@
+using System.Diagnostics;
 using static Lox.Interpreter.TokenType;
 
 namespace Lox.Interpreter;
 
 public class Scanner
 {
+  private static readonly Dictionary<string, TokenType> _keywords = new()
+  {
+    ["and"]    = AND,
+    ["class"]  = CLASS,
+    ["else"]   = ELSE,
+    ["false"]  = FALSE,
+    ["for"]    = FOR,
+    ["fun"]    = FUN,
+    ["if"]     = IF,
+    ["nil"]    = NIL,
+    ["or"]     = OR,
+    ["print"]  = PRINT,
+    ["return"] = RETURN,
+    ["super"]  = SUPER,
+    ["this"]   = THIS,
+    ["true"]   = TRUE,
+    ["var"]    = VAR,
+    ["while"]  = WHILE
+  };
+
   private readonly string _source;
   private readonly IReporter _reporter;
   private readonly ICollection<Token> _tokens = new List<Token>();
@@ -90,6 +111,8 @@ public class Scanner
         //          so we’ll stuff it in the default case instead.
         if (IsDigit(character))
           Number();
+        else if (IsAlpha(character))
+          Identifier();
         else
           _reporter.Error(_line, $"Unexpected character '{character}'.");
         break;
@@ -197,6 +220,35 @@ public class Scanner
       }
 
       return _source[_current + 1];
+    }
+
+    bool IsAlpha(char c)
+    {
+      return (c >= 'a' && c <= 'z') ||
+             (c >= 'A' && c <= 'Z') ||
+              c == '_';
+    }
+
+    bool IsAlphaNumberic(char c)
+    {
+      return IsAlpha(c) || IsDigit(c);
+    }
+
+    void Identifier()
+    {
+      while (IsAlphaNumberic(Peek()))
+      {
+        Advance();
+      }
+
+      int length = _current - _start;
+      string text = _source.Substring(_start, length);
+      if (!_keywords.TryGetValue(text, out TokenType type))
+      {
+        type = IDENTIFIER;
+      }
+
+      AddToken(type);
     }
   }
 
