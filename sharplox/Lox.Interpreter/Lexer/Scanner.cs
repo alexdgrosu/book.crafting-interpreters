@@ -1,29 +1,10 @@
 using static Lox.Interpreter.Lexer.TokenType;
+using static Lox.Interpreter.Lexer.Keyword;
 
 namespace Lox.Interpreter.Lexer;
 
 public class Scanner
 {
-  private static readonly Dictionary<string, TokenType> _keywords = new()
-  {
-    ["and"]    = AND,
-    ["class"]  = CLASS,
-    ["else"]   = ELSE,
-    ["false"]  = FALSE,
-    ["for"]    = FOR,
-    ["fun"]    = FUN,
-    ["if"]     = IF,
-    ["nil"]    = NIL,
-    ["or"]     = OR,
-    ["print"]  = PRINT,
-    ["return"] = RETURN,
-    ["super"]  = SUPER,
-    ["this"]   = THIS,
-    ["true"]   = TRUE,
-    ["var"]    = VAR,
-    ["while"]  = WHILE
-  };
-
   private readonly string _source;
   private readonly IReporter _reporter;
   private readonly ICollection<Token> _tokens = new List<Token>();
@@ -242,7 +223,7 @@ public class Scanner
 
       int length = _current - _start;
       string text = _source.Substring(_start, length);
-      if (!_keywords.TryGetValue(text, out TokenType type))
+      if (!Keywords.TryGetValue(text, out TokenType type))
       {
         type = IDENTIFIER;
       }
