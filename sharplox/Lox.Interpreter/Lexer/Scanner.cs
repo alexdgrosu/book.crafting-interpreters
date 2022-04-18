@@ -1,7 +1,6 @@
-using System.Diagnostics;
-using static Lox.Interpreter.TokenType;
+using static Lox.Interpreter.Lexer.TokenType;
 
-namespace Lox.Interpreter;
+namespace Lox.Interpreter.Lexer;
 
 public class Scanner
 {

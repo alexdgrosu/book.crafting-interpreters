@@ -1,4 +1,4 @@
-namespace Lox.Interpreter;
+namespace Lox.Interpreter.Lexer;
 
 public enum TokenType
 {
