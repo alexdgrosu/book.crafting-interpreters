@@ -14,9 +14,9 @@ if (args.Length > 1)
 }
 else if (args.Length == 1)
 {
-  await Interpret.FromFile(args[0], cancellationTokenSource);
+  await Interpret.FromFile(args[0], cancellationTokenSource.Token);
 }
 else
 {
-  Interpret.FromPrompt(cancellationTokenSource);
+  Interpret.FromPrompt(cancellationTokenSource.Token);
 }
