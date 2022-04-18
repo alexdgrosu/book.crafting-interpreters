@@ -1,6 +1,8 @@
 namespace Lox.Cli;
 
 /// <summary>
+/// Preferable exit codes for programs.
+///
 /// See: https://www.freebsd.org/cgi/man.cgi?query=sysexits&apropos=0&sektion=0&manpath=FreeBSD+4.3-RELEASE&format=html
 /// </summary>
 public static class SysExits
