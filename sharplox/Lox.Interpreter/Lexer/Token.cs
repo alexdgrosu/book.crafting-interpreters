@@ -17,6 +17,6 @@ public class Token
 
   public override string ToString()
   {
-    return $"{_type} {_lexeme} {_literal}";
+    return $"[token at line {_line}] {_type} {_lexeme} {_literal}";
   }
 }

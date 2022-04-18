@@ -1,4 +1,4 @@
-﻿using Lox.Cli;
+using Lox.Cli;
 
 // Create a cancellation token source & token to allow us to gracefully
 // abort our file or interactive interpreter on shutdown requests.

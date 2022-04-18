@@ -5,11 +5,11 @@ namespace Lox.Interpreter.Lexer;
 
 public class Scanner
 {
-  private readonly string _source;
   private readonly IReporter _reporter;
+  private readonly string _source;
   private readonly ICollection<Token> _tokens = new List<Token>();
-  private int _start = 0;
-  private int _current = 0;
+  private int _tokenStartingCharacter = 0;
+  private int _currentCharacter = 0;
   private long _line = 1;
 
   public Scanner(string source, IReporter reporter)
@@ -20,22 +20,22 @@ public class Scanner
 
   public ICollection<Token> ScanTokens()
   {
-    while (!IsAtEnd())
+    while (!IsAtSourceEnd())
     {
-      _start = _current;
-      ScanToken();
+      _tokenStartingCharacter = _currentCharacter;
+      ScanNextToken();
     }
 
     _tokens.Add(new(EOF, string.Empty, default, _line));
     return _tokens;
   }
 
-  private bool IsAtEnd()
+  private bool IsAtSourceEnd()
   {
-    return _current >= _source.Length;
+    return _currentCharacter >= _source.Length;
   }
 
-  private void ScanToken()
+  private void ScanNextToken()
   {
     char character = Advance();
 
@@ -53,21 +53,20 @@ public class Scanner
       case '*': AddToken(STAR); break;
 
       case '!':
-        AddToken(Match('=') ? BANG_EQUAL : BANG);
+        AddToken(MatchNext('=') ? BANG_EQUAL : BANG);
         break;
       case '=':
-        AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
+        AddToken(MatchNext('=') ? EQUAL_EQUAL : EQUAL);
         break;
       case '<':
-        AddToken(Match('=') ? LESS_EQUAL : LESS);
+        AddToken(MatchNext('=') ? LESS_EQUAL : LESS);
         break;
       case '>':
-        AddToken(Match('=') ? GREATER_EQUAL : GRATER);
+        AddToken(MatchNext('=') ? GREATER_EQUAL : GRATER);
         break;
       case '/':
-        if (Match('/'))
-          while (Peek() != '\n' && !IsAtEnd())
-            Advance();
+        if (MatchNext('/'))
+          while (Peek() != '\n' && !IsAtSourceEnd()) Advance();
         else
           AddToken(SLASH);
         break;
@@ -83,61 +82,24 @@ public class Scanner
         break;
 
       case '"':
-        String();
+        ScanString();
         break;
 
       default:
         // §4.6.2:  It’s kind of tedious to add cases for every decimal digit,
         //          so we’ll stuff it in the default case instead.
         if (IsDigit(character))
-          Number();
+          ScanNumber();
         else if (IsAlpha(character))
-          Identifier();
+          ScanIdentifier();
         else
           _reporter.Error(_line, $"Unexpected character '{character}'.");
         break;
     }
 
-    char Advance()
+    void ScanString()
     {
-      return _source[_current++];
-    }
-
-    char Peek()
-    {
-      if (IsAtEnd())
-      {
-        return '\0';
-      }
-
-      return _source[_current];
-    }
-
-    // TODO §4.6.1: Maybe extract this?
-    void AddToken(TokenType type)
-    {
-      this.AddToken(type, default);
-    }
-
-    bool Match(char expected)
-    {
-      if (IsAtEnd())
-      {
-        return false;
-      }
-
-      if (_source[_current] != expected)
-      {
-        return false;
-      }
-
-      _current++;
-      return true;
-    }
-
-    void String()
-    {
-      while (Peek() != '"' && !IsAtEnd())
+      while (Peek() != '"' && !IsAtSourceEnd())
       {
         if (Peek() == '\n')
         {
@@ -147,7 +109,7 @@ public class Scanner
         Advance();
       }
 
-      if (IsAtEnd())
+      if (IsAtSourceEnd())
       {
         _reporter.Error(_line, "Unterminated string.");
         return;
@@ -157,72 +119,39 @@ public class Scanner
       Advance();
 
       // Trim surrounding quotes
-      // TODO §4.6.1: Implement .Substring (start, end) overload
-      int length = _current - _start;
-      string value = _source.Substring(_start + 1, length - 2);
-      this.AddToken(STRING, value);
+      string value = _source[(_tokenStartingCharacter + 1)..(_currentCharacter - 1)];
+      AddToken(STRING, value);
     }
 
-    bool IsDigit(char c)
+    void ScanNumber()
     {
-      return c >= '0' && c <= '9';
-    }
-
-    void Number()
-    {
-      while (IsDigit(Peek()))
-      {
-        Advance();
-      }
+      AdvanceWhileIsDigit();
 
       // Look for fractional part.
       if (Peek() == '.' && IsDigit(PeekNext()))
       {
         // Consume the .
         Advance();
-
-        while (IsDigit(Peek()))
-        {
-          Advance();
-        }
+        AdvanceWhileIsDigit();
       }
 
-      int length = _current - _start;
-      string number = _source.Substring(_start, length);
-      this.AddToken(NUMBER, double.Parse(number));
-    }
+      string number = _source[_tokenStartingCharacter.._currentCharacter];
+      AddToken(NUMBER, double.Parse(number));
 
-    char PeekNext()
-    {
-      if (_current + 1 >= _source.Length)
+      void AdvanceWhileIsDigit()
       {
-        return '\0';
+        while (IsDigit(Peek())) Advance();
       }
-
-      return _source[_current + 1];
     }
 
-    bool IsAlpha(char c)
-    {
-      return (c >= 'a' && c <= 'z') ||
-             (c >= 'A' && c <= 'Z') ||
-              c == '_';
-    }
-
-    bool IsAlphaNumberic(char c)
-    {
-      return IsAlpha(c) || IsDigit(c);
-    }
-
-    void Identifier()
+    void ScanIdentifier()
     {
       while (IsAlphaNumberic(Peek()))
       {
         Advance();
       }
 
-      int length = _current - _start;
-      string text = _source.Substring(_start, length);
+      string text = _source[_tokenStartingCharacter.._currentCharacter];
       if (!Keywords.TryGetValue(text, out TokenType type))
       {
         type = IDENTIFIER;
@@ -232,10 +161,72 @@ public class Scanner
     }
   }
 
+  private char Advance()
+  {
+    return _source[_currentCharacter++];
+  }
+
+  private void AddToken(TokenType type)
+  {
+    AddToken(type, default);
+  }
+
   private void AddToken(TokenType type, object? literal)
   {
-    int length = _current - _start;
-    string text = _source.Substring(_start, length);
-    _tokens.Add(new(type, text, literal, _line));
+    string lexeme = _source[_tokenStartingCharacter.._currentCharacter];
+    _tokens.Add(new(type, lexeme, literal, _line));
+  }
+
+  private bool MatchNext(char expected)
+  {
+    if (IsAtSourceEnd())
+    {
+      return false;
+    }
+
+    if (_source[_currentCharacter] != expected)
+    {
+      return false;
+    }
+
+    _currentCharacter++;
+    return true;
+  }
+
+  private char Peek()
+  {
+    if (IsAtSourceEnd())
+    {
+      return '\0';
+    }
+
+    return _source[_currentCharacter];
+  }
+
+  private char PeekNext()
+  {
+    if (_currentCharacter + 1 >= _source.Length)
+    {
+      return '\0';
+    }
+
+    return _source[_currentCharacter + 1];
+  }
+
+  private static bool IsAlpha(char c)
+  {
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+            c == '_';
+  }
+
+  private static bool IsDigit(char c)
+  {
+    return c >= '0' && c <= '9';
+  }
+
+  private static bool IsAlphaNumberic(char c)
+  {
+    return IsAlpha(c) || IsDigit(c);
   }
 }
