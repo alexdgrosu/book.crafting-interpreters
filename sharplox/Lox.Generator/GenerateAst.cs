@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace Lox.Generator;
@@ -42,13 +43,15 @@ public static class GenerateAst
     foreach (string type in types)
     {
       string typeName = type.Split(':')[0].Trim();
-      builder.AppendLine($"    R visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
+      builder.AppendLine($"    R Visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
     }
     builder.AppendLine("  }");
   }
 
   private static void DefineNestedType(StringBuilder builder, string baseName, string className, string fieldList)
   {
+    TextInfo text = new CultureInfo("en-US").TextInfo;
+
     // Class
     builder.AppendLine($"  public class {className} : {baseName}");
     builder.AppendLine("  {");
@@ -62,7 +65,7 @@ public static class GenerateAst
     foreach (string field in fields)
     {
       string name = field.Split(' ')[1];
-      builder.AppendLine($"      this.{name} = {name};");
+      builder.AppendLine($"      {text.ToTitleCase(name)} = {name};");
     }
 
     builder.AppendLine("    }");
@@ -71,14 +74,17 @@ public static class GenerateAst
     builder.AppendLine();
     builder.AppendLine($"    public override R Accept<R>(IVisitor<R> visitor)");
     builder.AppendLine("    {");
-    builder.AppendLine($"      return visitor.visit{className}{baseName}(this);");
+    builder.AppendLine($"      return visitor.Visit{className}{baseName}(this);");
     builder.AppendLine("    }");
 
     // Fields
     builder.AppendLine();
     foreach (string field in fields)
     {
-      builder.AppendLine($"    private readonly {field};");
+      string[] split = field.Split(' ');
+      string type = split[0];
+      string name = text.ToTitleCase(split[1]);
+      builder.AppendLine($"    public {type} {name} {{ get; }}");
     }
 
     builder.AppendLine("  }");

@@ -2,21 +2,21 @@ namespace Lox.Interpreter.Lexer;
 
 public class Token
 {
-  private readonly TokenType _type;
-  private readonly string _lexeme;
-  private readonly object? _literal;
-  private readonly long _line;
-
   public Token(TokenType type, string lexeme, object? literal, long line)
   {
-    _type = type;
-    _lexeme = lexeme;
-    _literal = literal;
-    _line = line;
+    Type = type;
+    Lexeme = lexeme;
+    Literal = literal;
+    Line = line;
   }
+
+  public TokenType Type { get; }
+  public string Lexeme { get; }
+  public object? Literal { get; }
+  public long Line { get; }
 
   public override string ToString()
   {
-    return $"[token at line {_line}] {_type} {_lexeme} {_literal}";
+    return $"[token at line {Line}] {Type} {Lexeme} {Literal}";
   }
 }
