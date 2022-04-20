@@ -26,13 +26,25 @@
       }
     },
     {
+      "label": "clean:sharplox",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["clean", "${workspaceFolder}/sharplox/SharpLox.sln"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
       "label": "format:sharplox",
       "type": "process",
       "command": "dotnet",
-      "args": [
-        "format",
-        "${workspaceFolder}/sharplox/SharpLox.sln"
-      ],
+      "args": ["format", "${workspaceFolder}/sharplox/SharpLox.sln"],
       "problemMatcher": []
     }
   ]
