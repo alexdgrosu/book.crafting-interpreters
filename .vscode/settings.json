@@ -1,3 +1,9 @@
 {
-  "vssolution.altSolutionFolders": ["sharplox"]
+  "vssolution.altSolutionFolders": [
+    "sharplox"
+  ],
+  "cSpell.words": [
+    "println",
+    "sharplox"
+  ]
 }
