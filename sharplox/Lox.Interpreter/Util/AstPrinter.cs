@@ -47,6 +47,7 @@ public class AstPrinter : Expr.IVisitor<string?>
       builder.Append(' ')
              .Append(expr.Accept(this));
     }
+
     builder.Append(')');
 
     return builder.ToString();
