@@ -15,6 +15,9 @@ public static class GenerateAst
     builder.AppendLine($"public abstract class {baseName}");
     builder.AppendLine("{");
 
+    DefineVisitor(builder, baseName, types);
+    builder.AppendLine();
+
     for (int i = 0; i < types.Length; i++)
     {
       var split = types[i].Split(':');
@@ -22,18 +25,26 @@ public static class GenerateAst
       string fields = split[1].Trim();
 
       DefineNestedType(builder, baseName, className, fields);
-
-      if (!IsLast(i))
-      {
-        builder.AppendLine();
-      }
+      builder.AppendLine();
     }
-
+    builder.AppendLine("  public abstract R Accept<R>(IVisitor<R> visitor);");
     builder.AppendLine("}");
 
     return builder.ToString();
 
-    bool IsLast(int index) => index == types.Length - 1;
+  }
+
+  private static void DefineVisitor(StringBuilder builder, string baseName, string[] types)
+  {
+    builder.AppendLine($"  public interface IVisitor<R>");
+    builder.AppendLine("  {");
+
+    foreach (string type in types)
+    {
+      string typeName = type.Split(':')[0].Trim();
+      builder.AppendLine($"    R visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
+    }
+    builder.AppendLine("  }");
   }
 
   private static void DefineNestedType(StringBuilder builder, string baseName, string className, string fieldList)
@@ -54,6 +65,13 @@ public static class GenerateAst
       builder.AppendLine($"      this.{name} = {name};");
     }
 
+    builder.AppendLine("    }");
+
+    // Visitor
+    builder.AppendLine();
+    builder.AppendLine($"    public override R Accept<R>(IVisitor<R> visitor)");
+    builder.AppendLine("    {");
+    builder.AppendLine($"      return visitor.visit{className}{baseName}(this);");
     builder.AppendLine("    }");
 
     // Fields
