@@ -62,7 +62,7 @@ public class Scanner
         AddToken(MatchNext('=') ? LESS_EQUAL : LESS);
         break;
       case '>':
-        AddToken(MatchNext('=') ? GREATER_EQUAL : GRATER);
+        AddToken(MatchNext('=') ? GREATER_EQUAL : GREATER);
         break;
       case '/':
         if (MatchNext('/'))
