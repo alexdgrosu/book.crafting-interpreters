@@ -5,8 +5,13 @@ namespace Lox.Interpreter.Util;
 
 public class AstPrinter : Expr.IVisitor<string?>
 {
-  public string? Print(Expr expr)
+  public string? Print(Expr? expr)
   {
+    if (expr is null)
+    {
+      return string.Empty;
+    }
+
     return expr.Accept(this);
   }
 

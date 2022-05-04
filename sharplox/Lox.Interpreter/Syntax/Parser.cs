@@ -18,6 +18,18 @@ public class Parser
     _reporter = reporter;
   }
 
+  public Expr? Parse()
+  {
+    try
+    {
+      return Expression();
+    }
+    catch (ParseError)
+    {
+      return default;
+    }
+  }
+
   private Expr Expression()
   {
     return Equality();
@@ -118,7 +130,7 @@ public class Parser
       return new Expr.Grouping(expr);
     }
 
-    throw new NotImplementedException();
+    throw Error(Peek(), "Expect expression");
   }
 
   private Token Consume(TokenType type, string message)

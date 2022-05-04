@@ -1,5 +1,8 @@
+using Lox.Interpreter.Ast;
 using Lox.Interpreter.Core;
 using Lox.Interpreter.Lexer;
+using Lox.Interpreter.Syntax;
+using Lox.Interpreter.Util;
 
 namespace Lox.Cli;
 
@@ -42,11 +45,16 @@ public static class Interpret
   private static void Run(string source)
   {
     Scanner scanner = new(source, _reporter);
-    var tokens = scanner.ScanTokens();
+    IList<Token> tokens = scanner.ScanTokens();
+    Parser parser = new(tokens, _reporter);
+    Expr? expression = parser.Parse();
 
-    foreach (Token token in tokens)
+
+    if (_reporter.HadError)
     {
-      Console.WriteLine(token);
+      return;
     }
+
+    Console.WriteLine(new AstPrinter().Print(expression));
   }
 }

@@ -9,7 +9,7 @@ public class Scanner
 {
   private readonly IReporter _reporter;
   private readonly string _source;
-  private readonly ICollection<Token> _tokens = new List<Token>();
+  private readonly IList<Token> _tokens = new List<Token>();
   private int _tokenStartingCharacter = 0;
   private int _currentCharacter = 0;
   private long _line = 1;
@@ -20,7 +20,7 @@ public class Scanner
     _reporter = reporter;
   }
 
-  public ICollection<Token> ScanTokens()
+  public IList<Token> ScanTokens()
   {
     while (!IsAtSourceEnd())
     {
