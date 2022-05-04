@@ -1,3 +1,5 @@
+using Lox.Interpreter.Core;
+
 using static Lox.Interpreter.Lexer.TokenType;
 using static Lox.Interpreter.Lexer.Keyword;
 

@@ -1,5 +1,6 @@
-using Lox.Interpreter.Lexer;
 using Lox.Interpreter.Ast;
+using Lox.Interpreter.Core;
+using Lox.Interpreter.Lexer;
 
 using static Lox.Interpreter.Lexer.TokenType;
 
@@ -8,11 +9,13 @@ namespace Lox.Interpreter.Syntax;
 public class Parser
 {
   private readonly IList<Token> _tokens;
+  private readonly IReporter _reporter;
   private int _currentToken = 0;
 
-  public Parser(IList<Token> tokens)
+  public Parser(IList<Token> tokens, IReporter reporter)
   {
     _tokens = tokens;
+    _reporter = reporter;
   }
 
   private Expr Expression()
@@ -118,15 +121,55 @@ public class Parser
     throw new NotImplementedException();
   }
 
-  private void Consume(TokenType type, string message)
+  private Token Consume(TokenType type, string message)
   {
-    throw new NotImplementedException();
+    if (Check(type))
+    {
+      return Advance();
+    }
+
+    throw Error(Peek(), message);
   }
 
-  private Exception Error(Token token, string message)
+  private LoxException Error(Token token, string message)
   {
-    throw new NotImplementedException();
+    _reporter.Error(token, message);
+    return new ParseError();
   }
+
+  // §6.3.3: We don’t get to see this method in action, since we don’t have
+  //         statements yet. For now, if an error occurs, we’ll panic and unwind
+  //         all the way to the top and stop parsing. Since we can parse only a
+  //         single expression anyway, that’s no big loss.
+#pragma warning disable IDE0051
+  private void Synchronize()
+  {
+    Advance();
+
+    while (!IsAtEnd())
+    {
+      if (Previous().Type is SEMICOLON)
+      {
+        return;
+      }
+
+      switch (Peek().Type)
+      {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+          return;
+      }
+
+      Advance();
+    }
+  }
+#pragma warning restore IDE0051
 
   private bool Match(params TokenType[] types)
   {

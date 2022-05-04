@@ -1,4 +1,4 @@
-using Lox.Interpreter;
+using Lox.Interpreter.Core;
 using Lox.Interpreter.Lexer;
 
 namespace Lox.Cli;
