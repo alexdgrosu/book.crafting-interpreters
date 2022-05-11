@@ -8,7 +8,45 @@ public class Interpreter : Expr.IVisitor<object>
 {
   public object VisitBinaryExpr(Expr.Binary expr)
   {
-    throw new NotImplementedException();
+    object left = expr.Left;
+    object right = expr.Right;
+
+    switch (expr.Operator.Type)
+    {
+      case BANG_EQUAL:
+        return !IsEqual(left, right);
+      case EQUAL_EQUAL:
+        return IsEqual(left, right);
+      case GREATER:
+        return (double)left > (double)right;
+      case GREATER_EQUAL:
+        return (double)left >= (double)right;
+      case LESS:
+        return (double)left < (double)right;
+      case LESS_EQUAL:
+        return (double)left <= (double)right;
+      case MINUS:
+        return (double)left - (double)right;
+      case SLASH:
+        return (double)left / (double)right;
+      case STAR:
+        return (double)left * (double)right;
+      case PLUS:
+        if (left is double leftNumber && right is double rightNumber)
+        {
+          return leftNumber + rightNumber;
+        }
+
+        if (left is string leftString && right is string rightString)
+        {
+          return leftString + rightString;
+        }
+
+        break;
+    }
+
+    // Unreachable
+    return null!;
   }
 
   public object VisitGroupingExpr(Expr.Grouping expr)
@@ -33,6 +71,21 @@ public class Interpreter : Expr.IVisitor<object>
       // Unreachable
       _ => null!
     };
+  }
+
+  private static bool IsEqual(object left, object right)
+  {
+    if (left is null && right is null)
+    {
+      return true;
+    }
+
+    if (left is null)
+    {
+      return false;
+    }
+
+    return left.Equals(right);
   }
 
   private static bool IsTruthy(object obj)
