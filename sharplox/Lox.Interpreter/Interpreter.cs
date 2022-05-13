@@ -57,6 +57,12 @@ public class Interpreter : Expr.IVisitor<object>
         return (double)left - (double)right;
       case SLASH:
         CheckNumberOperands(expr.Operator, left, right);
+
+        if (right is double number && number == 0.0d)
+        {
+          throw new RuntimeError(expr.Operator, "Cannot divide by zero.");
+        }
+
         return (double)left / (double)right;
       case STAR:
         CheckNumberOperands(expr.Operator, left, right);
@@ -70,6 +76,12 @@ public class Interpreter : Expr.IVisitor<object>
         if (left is string leftString && right is string rightString)
         {
           return leftString + rightString;
+        }
+
+        if ((left is string && right is double)
+            || (right is string && left is double))
+        {
+          return string.Concat(left, right);
         }
 
         throw new RuntimeError(expr.Operator,
