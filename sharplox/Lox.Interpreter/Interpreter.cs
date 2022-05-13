@@ -1,4 +1,6 @@
 using Lox.Interpreter.Ast;
+using Lox.Interpreter.Core;
+using Lox.Interpreter.Lexer;
 
 using static Lox.Interpreter.Lexer.TokenType;
 
@@ -18,18 +20,25 @@ public class Interpreter : Expr.IVisitor<object>
       case EQUAL_EQUAL:
         return IsEqual(left, right);
       case GREATER:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left > (double)right;
       case GREATER_EQUAL:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left >= (double)right;
       case LESS:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left < (double)right;
       case LESS_EQUAL:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left <= (double)right;
       case MINUS:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left - (double)right;
       case SLASH:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left / (double)right;
       case STAR:
+        CheckNumberOperands(expr.Operator, left, right);
         return (double)left * (double)right;
       case PLUS:
         if (left is double leftNumber && right is double rightNumber)
@@ -42,7 +51,8 @@ public class Interpreter : Expr.IVisitor<object>
           return leftString + rightString;
         }
 
-        break;
+        throw new RuntimeError(expr.Operator,
+                               "Operands must be two numbers or two strings");
     }
 
     // Unreachable
@@ -63,14 +73,33 @@ public class Interpreter : Expr.IVisitor<object>
   {
     object right = expr.Right;
 
-    return expr.Operator.Type switch
+    switch (expr.Operator.Type)
     {
-      MINUS => -(double)right,
-      BANG => IsTruthy(right),
+      case MINUS:
+        CheckNumberOperand(expr.Operator, right);
+        return -(double)right;
+      case BANG:
+        return IsTruthy(right);
+    }
 
-      // Unreachable
-      _ => null!
-    };
+    // Unreachable
+    return null!;
+  }
+
+  private static void CheckNumberOperands(Token @operator, object left, object right)
+  {
+    if (left is not double && right is not double)
+    {
+      throw new RuntimeError(@operator, "Operands must be numbers.");
+    }
+  }
+
+  private static void CheckNumberOperand(Token @operator, object operand)
+  {
+    if (operand is not double)
+    {
+      throw new RuntimeError(@operator, "Operand must be a number.");
+    }
   }
 
   private static bool IsEqual(object left, object right)
