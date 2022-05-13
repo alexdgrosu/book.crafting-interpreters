@@ -8,10 +8,31 @@ namespace Lox.Interpreter;
 
 public class Interpreter : Expr.IVisitor<object>
 {
+  private readonly IReporter _reporter;
+
+  public Interpreter(IReporter reporter)
+  {
+    _reporter = reporter;
+  }
+
+  public void Interpret(Expr? expression)
+  {
+    try
+    {
+      object value = Evaluate(expression
+                              ?? throw new ArgumentNullException(nameof(expression)));
+      Console.WriteLine(Stringify(value));
+    }
+    catch (RuntimeError err)
+    {
+      _reporter.RuntimeError(err);
+    }
+  }
+
   public object VisitBinaryExpr(Expr.Binary expr)
   {
-    object left = expr.Left;
-    object right = expr.Right;
+    object left = Evaluate(expr.Left);
+    object right = Evaluate(expr.Right);
 
     switch (expr.Operator.Type)
     {
@@ -52,7 +73,7 @@ public class Interpreter : Expr.IVisitor<object>
         }
 
         throw new RuntimeError(expr.Operator,
-                               "Operands must be two numbers or two strings");
+                               "Operands must be two numbers or two strings.");
     }
 
     // Unreachable
@@ -84,6 +105,16 @@ public class Interpreter : Expr.IVisitor<object>
 
     // Unreachable
     return null!;
+  }
+
+  private static string? Stringify(object value)
+  {
+    return value switch
+    {
+      null => "nil",
+      double number => number.ToString("G29"),
+      _ => value.ToString()
+    };
   }
 
   private static void CheckNumberOperands(Token @operator, object left, object right)

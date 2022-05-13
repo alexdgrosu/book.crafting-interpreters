@@ -5,6 +5,7 @@ namespace Lox.Interpreter.Core;
 public class ConsoleReporter : IReporter
 {
   public bool HadError { get; set; } = false;
+  public bool HadRuntimeError { get; set; } = false;
 
   public void Error(long line, string message)
   {
@@ -21,6 +22,13 @@ public class ConsoleReporter : IReporter
     {
       Report(token.Line, $" at '{token.Lexeme}'", message);
     }
+  }
+
+  public void RuntimeError(RuntimeError err)
+  {
+    Console.Error.WriteLine($"[line {err.Token.Line}] {err.Message}");
+
+    HadRuntimeError = true;
   }
 
   private void Report(long line, string where, string message)

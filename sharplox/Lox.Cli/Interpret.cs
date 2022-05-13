@@ -9,6 +9,7 @@ namespace Lox.Cli;
 public static class Interpret
 {
   private static readonly IReporter _reporter = new ConsoleReporter();
+  private static readonly Interpreter.Interpreter _interpreter = new(_reporter);
 
   public static async Task FromFile(string path, CancellationToken token)
   {
@@ -22,6 +23,11 @@ public static class Interpret
     if (_reporter.HadError)
     {
       Environment.Exit(SysExits.EX_DATAERR);
+    }
+
+    if (_reporter.HadRuntimeError)
+    {
+      Environment.Exit(SysExits.EX_SOFTWARE);
     }
   }
 
@@ -45,16 +51,15 @@ public static class Interpret
   private static void Run(string source)
   {
     Scanner scanner = new(source, _reporter);
-    IList<Token> tokens = scanner.ScanTokens();
-    Parser parser = new(tokens, _reporter);
+    Parser parser = new(scanner.ScanTokens(),
+                        _reporter);
     Expr? expression = parser.Parse();
-
 
     if (_reporter.HadError)
     {
       return;
     }
 
-    Console.WriteLine(new AstPrinter().Print(expression));
+    _interpreter.Interpret(expression);
   }
 }

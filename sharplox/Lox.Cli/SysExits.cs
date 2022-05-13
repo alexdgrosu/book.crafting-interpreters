@@ -20,4 +20,11 @@ public static class SysExits
   ///                 files.
   /// </summary>
   public const int EX_DATAERR = 65;
+
+  /// <summary>
+  /// EX_SOFTWARE (70) An internal software error has been detected. This should
+  ///                  be limited to non-operating system related errors as
+  ///                  possible.
+  /// </summary>
+  public const int EX_SOFTWARE = 70;
 }
