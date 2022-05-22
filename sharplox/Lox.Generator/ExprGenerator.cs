@@ -20,14 +20,6 @@ public class ExprGenerator : ISourceGenerator
     });
 
     context.AddSource("Expr.g.cs", SourceText.From(exprSource, Encoding.UTF8));
-
-    string stmtSource = DefineAst("Stmt", new[]
-    {
-      "Expression : Expr xpression",
-      "Print      : Expr xpression"
-    });
-
-    context.AddSource("Stmt.g.cs", SourceText.From(stmtSource, Encoding.UTF8));
   }
 
   public void Initialize(GeneratorInitializationContext context) { }
