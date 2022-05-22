@@ -18,16 +18,39 @@ public class Parser
     _reporter = reporter;
   }
 
-  public Expr? Parse()
+  public IList<Stmt> Parse()
   {
-    try
+    IList<Stmt> statements = new List<Stmt>();
+
+    while (!IsAtEnd())
     {
-      return Expression();
+      statements.Add(Statement());
     }
-    catch (ParseError)
+
+    return statements;
+  }
+
+  private Stmt Statement()
+  {
+    if (Match(PRINT))
     {
-      return default;
+      return PrintStatement();
     }
+
+    return ExpressionStatement();
+  }
+  private Stmt.Print PrintStatement()
+  {
+    Expr value = Expression();
+    Consume(SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Print(value);
+  }
+
+  private Stmt.Expression ExpressionStatement()
+  {
+    Expr expr = Expression();
+    Consume(SEMICOLON, "Expect ';' after expression.");
+    return new Stmt.Expression(expr);
   }
 
   private Expr Expression()
