@@ -6,7 +6,7 @@ using static Lox.Interpreter.Lexer.TokenType;
 
 namespace Lox.Interpreter;
 
-public class Interpreter : Expr.IVisitor<object>
+public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 {
   private readonly IReporter _reporter;
 
@@ -15,13 +15,14 @@ public class Interpreter : Expr.IVisitor<object>
     _reporter = reporter;
   }
 
-  public void Interpret(Expr? expression)
+  public void Interpret(IList<Stmt> statements)
   {
     try
     {
-      object value = Evaluate(expression
-                              ?? throw new ArgumentNullException(nameof(expression)));
-      Console.WriteLine(Stringify(value));
+      foreach (var stmt in statements)
+      {
+        Execute(stmt);
+      }
     }
     catch (RuntimeError err)
     {
@@ -119,6 +120,24 @@ public class Interpreter : Expr.IVisitor<object>
     return null!;
   }
 
+  object Stmt.IVisitor<object>.VisitExpressionStmt(Stmt.Expression stmt)
+  {
+    Evaluate(stmt.Xpression);
+    return null!;
+  }
+
+  object Stmt.IVisitor<object>.VisitPrintStmt(Stmt.Print stmt)
+  {
+    object value = Evaluate(stmt.Xpression);
+    Console.WriteLine(Stringify(value));
+    return null!;
+  }
+
+  private void Execute(Stmt stmt)
+  {
+    stmt.Accept(this);
+  }
+
   private static string? Stringify(object value)
   {
     return value switch
@@ -174,4 +193,6 @@ public class Interpreter : Expr.IVisitor<object>
   {
     return expr.Accept(this);
   }
+
+
 }

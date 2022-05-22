@@ -51,15 +51,16 @@ public static class Interpret
   private static void Run(string source)
   {
     Scanner scanner = new(source, _reporter);
-    Parser parser = new(scanner.ScanTokens(),
-                        _reporter);
-    Expr? expression = parser.Parse();
+    var tokens = scanner.ScanTokens();
+
+    Parser parser = new(tokens, _reporter);
+    var statements = parser.Parse();
 
     if (_reporter.HadError)
     {
       return;
     }
 
-    _interpreter.Interpret(expression);
+    _interpreter.Interpret(statements);
   }
 }

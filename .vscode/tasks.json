@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build:sharplox",
+      "label": "sharplox: build",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -26,7 +26,7 @@
       }
     },
     {
-      "label": "clean:sharplox",
+      "label": "sharplox: clean",
       "command": "dotnet",
       "type": "process",
       "args": ["clean", "${workspaceFolder}/sharplox/SharpLox.sln"],
@@ -41,11 +41,31 @@
       }
     },
     {
-      "label": "format:sharplox",
+      "label": "sharplox: format",
       "type": "process",
       "command": "dotnet",
-      "args": ["format", "${workspaceFolder}/sharplox/SharpLox.sln"],
-      "problemMatcher": []
+      "args": ["format", "${workspaceFolder}/sharplox/SharpLox.sln"]
+    },
+    {
+      "label": "sharplox: run file",
+      "command": "dotnet",
+      "type": "process",
+      "problemMatcher": "$msCompile",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/sharplox/Lox.Cli",
+        "--",
+        "${file}"
+      ],
+      "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      }
     }
   ]
 }

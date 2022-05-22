@@ -10,9 +10,11 @@ Personal repository for following along with the _"Crafting Interpreters"_ book 
 
 This repository contains/_will eventually contain_:
 
-- `sharplox`: a C# implementation of a [Lox](https://craftinginterpreters.com/the-lox-language.html) interpreter  
+- `sharplox/`: a C# implementation of a [Lox](https://craftinginterpreters.com/the-lox-language.html) interpreter  
   (_called_ `jlox` _in the book & implemented in Java_) [^2]
-- `clox`: a C implementation of a Lox compiler [^3]
+- `clox/`: a C implementation of a Lox compiler [^3]
+- `lox/`: Lox language samples in the format of `x.x.x_sample_description.lox`  
+  (_where_ `x.x.x` _represents the_ `chapter.section.subsection` _where the sample was introduced in the book_)
 
 ## `sharplox`
 
@@ -20,6 +22,14 @@ Implementation is in progress.
 `sharplox` currently supports the following context-free grammar:
 
 ```shell
+program       → statement* EOF ;
+
+statement     → exprStmt
+                | printStmt ;
+
+exprStmt      → expression ";" ;
+printStmt     → "print" expression ";" ;
+
 expression    → equality ;
 equality      → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison    → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -45,6 +55,13 @@ $ sharplox
 42
 > ...
 ```
+
+Or you can run any of the samples in the [/lox](./lox/) directory by:
+
+- opening the file in VS Code
+- running the `sharplox: run file` VS Code task
+
+![](./assets/Code_FcSoZLPLmK.gif)
 
 ### Notes on Implementation
 

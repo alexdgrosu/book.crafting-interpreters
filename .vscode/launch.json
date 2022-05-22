@@ -8,7 +8,7 @@
       "name": "Lox.Cli",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build:sharplox",
+      "preLaunchTask": "sharplox: build",
       // If you have changed target frameworks, make sure to update the program path.
       "program": "${workspaceFolder}/sharplox/Lox.Cli/bin/Debug/net6.0/Lox.Cli.dll",
       "args": [],
