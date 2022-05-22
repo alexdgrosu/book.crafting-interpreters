@@ -14,7 +14,8 @@ public class StmtGenerator : ISourceGenerator
     string stmtSource = DefineAst("Stmt", new[]
   {
       "Expression : Expr xpression",
-      "Print      : Expr xpression"
+      "Print      : Expr xpression",
+      "Var        : Token name, Expr initializer"
     });
 
     context.AddSource("Stmt.g.cs", SourceText.From(stmtSource, Encoding.UTF8));
