@@ -94,7 +94,7 @@ public class Interpreter : Expr.IVisitor<object>
 
   public object VisitGroupingExpr(Expr.Grouping expr)
   {
-    return Evaluate(expr.Expression);
+    return Evaluate(expr.Xpression);
   }
 
   public object VisitLiteralExpr(Expr.Literal expr)

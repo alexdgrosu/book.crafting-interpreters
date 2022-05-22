@@ -22,7 +22,7 @@ public class AstPrinter : Expr.IVisitor<string?>
 
   public string? VisitGroupingExpr(Expr.Grouping expr)
   {
-    return Parenthesize("group", expr.Expression);
+    return Parenthesize("group", expr.Xpression);
   }
 
   public string? VisitLiteralExpr(Expr.Literal expr)

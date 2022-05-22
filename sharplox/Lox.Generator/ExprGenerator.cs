@@ -11,15 +11,23 @@ public class ExprGenerator : ISourceGenerator
 {
   public void Execute(GeneratorExecutionContext context)
   {
-    string source = DefineAst("Expr", new[]
+    string exprSource = DefineAst("Expr", new[]
     {
       "Binary   : Expr left, Token @operator, Expr right",
-      "Grouping : Expr expression",
+      "Grouping : Expr xpression",
       "Literal  : object value",
       "Unary    : Token @operator, Expr right"
     });
 
-    context.AddSource("Expr.g.cs", SourceText.From(source, Encoding.UTF8));
+    context.AddSource("Expr.g.cs", SourceText.From(exprSource, Encoding.UTF8));
+
+    string stmtSource = DefineAst("Stmt", new[]
+    {
+      "Expression : Expr xpression",
+      "Print      : Expr xpression"
+    });
+
+    context.AddSource("Stmt.g.cs", SourceText.From(stmtSource, Encoding.UTF8));
   }
 
   public void Initialize(GeneratorInitializationContext context) { }
